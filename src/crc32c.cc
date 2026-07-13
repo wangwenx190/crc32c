@@ -19,20 +19,26 @@ uint32_t Extend(uint32_t crc, const uint8_t* data, size_t count) {
 #if HAVE_SSE42 && (defined(_M_X64) || defined(__x86_64__))
   static bool can_use_sse42 = CanUseSse42();
   if (can_use_sse42) return ExtendSse42(crc, data, count);
+#elif HAVE_ARM64_CRC32C && defined(__ARM_FEATURE_CRC32) && \
+    (defined(__ARM_FEATURE_CRYPTO) || defined(__ARM_FEATURE_AES))
+  // This target already requires both instructions used by the ARM kernel.
+  return ExtendArm64(crc, data, count);
 #elif HAVE_ARM64_CRC32C
   static bool can_use_arm64_crc32 = CanUseArm64Crc32();
   if (can_use_arm64_crc32) return ExtendArm64(crc, data, count);
-#endif  // HAVE_SSE42 && (defined(_M_X64) || defined(__x86_64__))
+#endif
 
   return ExtendPortable(crc, data, count);
 }
 
-extern "C" uint32_t crc32c_extend(uint32_t crc, const uint8_t* data,
-                                  size_t count) {
+extern "C" CRC32C_API uint32_t crc32c_extend(uint32_t crc,
+                                             const uint8_t* data,
+                                             size_t count) {
   return crc32c::Extend(crc, data, count);
 }
 
-extern "C" uint32_t crc32c_value(const uint8_t* data, size_t count) {
+extern "C" CRC32C_API uint32_t crc32c_value(const uint8_t* data,
+                                            size_t count) {
   return crc32c::Crc32c(data, count);
 }
 

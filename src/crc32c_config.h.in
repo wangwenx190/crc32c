@@ -11,16 +11,23 @@
 // Define to 1 if the compiler has the __builtin_prefetch intrinsic.
 #cmakedefine01 HAVE_BUILTIN_PREFETCH
 
-// Define to 1 if targeting X86 and the compiler has the _mm_prefetch intrinsic.
-#cmakedefine01 HAVE_MM_PREFETCH
+#cmakedefine01 CRC32C_BUILD_SSE42
+#cmakedefine01 CRC32C_BUILD_ARM64
 
-// Define to 1 if targeting X86 and the compiler has the _mm_crc32_u{8,32,64}
-// intrinsics.
-#cmakedefine01 HAVE_SSE42
+// A universal library compiles this same header separately for each slice.
+#if CRC32C_BUILD_SSE42 && (defined(_M_X64) || defined(__x86_64__)) && !defined(_M_ARM64EC)
+#define HAVE_MM_PREFETCH 1
+#define HAVE_SSE42 1
+#else
+#define HAVE_MM_PREFETCH 0
+#define HAVE_SSE42 0
+#endif
 
-// Define to 1 if targeting ARM and the compiler has the __crc32c{b,h,w,d} and
-// the vmull_p64 intrinsics.
-#cmakedefine01 HAVE_ARM64_CRC32C
+#if CRC32C_BUILD_ARM64 && (defined(_M_ARM64) || defined(__aarch64__))
+#define HAVE_ARM64_CRC32C 1
+#else
+#define HAVE_ARM64_CRC32C 0
+#endif
 
 // Define to 1 if the system libraries have the getauxval function in the
 // <sys/auxv.h> header. Should be true on Linux and Android API level 20+.
@@ -29,8 +36,5 @@
 // Define to 1 if the compiler supports defining getauxval as a weak symbol.
 // Should be true for any compiler that supports __attribute__((weak)).
 #cmakedefine01 HAVE_WEAK_GETAUXVAL
-
-// Define to 1 if CRC32C tests have been built with Google Logging.
-#cmakedefine01 CRC32C_TESTS_BUILT_WITH_GLOG
 
 #endif  // CRC32C_CRC32C_CONFIG_H_

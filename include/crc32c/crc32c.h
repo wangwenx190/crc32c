@@ -7,6 +7,18 @@
 
 /* The API exported by the CRC32C project. */
 
+#if defined(_WIN32)
+#if defined(CRC32C_STATIC_DEFINE)
+#define CRC32C_API
+#elif defined(CRC32C_EXPORTS)
+#define CRC32C_API __declspec(dllexport)
+#else
+#define CRC32C_API __declspec(dllimport)
+#endif
+#else
+#define CRC32C_API __attribute__((visibility("default")))
+#endif
+
 #if defined(__cplusplus)
 
 #include <cstddef>
@@ -29,10 +41,11 @@ extern "C" {
 
 /* Extends "crc" with the CRC32C of "count" bytes in the buffer pointed by
    "data" */
-uint32_t crc32c_extend(uint32_t crc, const uint8_t* data, size_t count);
+CRC32C_API uint32_t crc32c_extend(uint32_t crc, const uint8_t* data,
+                                  size_t count);
 
 /* Computes the CRC32C of "count" bytes in the buffer pointed by "data". */
-uint32_t crc32c_value(const uint8_t* data, size_t count);
+CRC32C_API uint32_t crc32c_value(const uint8_t* data, size_t count);
 
 #ifdef __cplusplus
 }  /* end extern "C" */
@@ -47,7 +60,7 @@ namespace crc32c {
 
 // Extends "crc" with the CRC32C of "count" bytes in the buffer pointed by
 // "data".
-uint32_t Extend(uint32_t crc, const uint8_t* data, size_t count);
+CRC32C_API uint32_t Extend(uint32_t crc, const uint8_t* data, size_t count);
 
 // Computes the CRC32C of "count" bytes in the buffer pointed by "data".
 inline uint32_t Crc32c(const uint8_t* data, size_t count) {

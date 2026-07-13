@@ -93,6 +93,15 @@ uint32_t ExtendArm64(uint32_t crc, const uint8_t *data, size_t size) {
     length -= KBYTES;
   }
 
+  while (length >= 32) {
+    crc = __crc32cd(crc, ReadUint64LE(data));
+    crc = __crc32cd(crc, ReadUint64LE(data + 8));
+    crc = __crc32cd(crc, ReadUint64LE(data + 16));
+    crc = __crc32cd(crc, ReadUint64LE(data + 24));
+    data += 32;
+    length -= 32;
+  }
+
   while (length >= 8) {
     crc = __crc32cd(crc, ReadUint64LE(data));
     data += 8;
